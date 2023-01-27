@@ -1,17 +1,32 @@
 import { initializeApp } from 'firebase/app';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, getAuth, onAuthStateChanged, signOut, updateProfile } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  updateProfile,
+} from 'firebase/auth';
+import {
+  toastErrorNotify,
+  toastSuccessNotify,
+  toastWarnNotify,
+} from '../helpers/ToastNotify';
 
 // TODO: Replace the following with your app's Firebase project configuration
 //* https://firebase.google.com/docs/auth/web/start
 //* https://console.firebase.google.com/ => project settings
 //! firebase console settings bölümünden firebaseconfig ayarlarını al
 const firebaseConfig = {
-    apiKey: process.env.REACT_APP_apiKey,
-    authDomain: process.env.REACT_APP_authDomain,
-    projectId: process.env.REACT_APP_projectId,
-    storageBucket: process.env.REACT_APP_storageBucket,
-    messagingSenderId: process.env.REACT_APP_messagingSenderId,
-    appId: process.env.REACT_APP_appId,
+  apiKey: process.env.REACT_APP_apiKey,
+  authDomain: process.env.REACT_APP_authDomain,
+  projectId: process.env.REACT_APP_projectId,
+  storageBucket: process.env.REACT_APP_storageBucket,
+  messagingSenderId: process.env.REACT_APP_messagingSenderId,
+  appId: process.env.REACT_APP_appId,
 };
 
 // Initialize Firebase
@@ -20,59 +35,95 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase Authentication and get a reference to the service
 const auth = getAuth(app);
 
-export const createUser = async(email, password, navigate, displayName) => {    
-    //yeni bir kullanıcı için firebase methodu
-    try {
-      let userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email, 
-        password
-      );
-      //* kullanıcı profilini güncellemeye yarayan firebase methodu
-      await updateProfile(auth.currentUser, {
-        displayName: displayName,
-      })
-      navigate('/')
-        // sessionStorage.setItem("user".JSON.stringfy
-        // (userCredential.user))
-        // console.log(userCredential);
-    } catch (err) {
-        console.log(err);
-        
-    }  
+export const createUser = async (email, password, navigate, displayName) => {
+  //? yeni bir kullanıcı oluşturmak için kullanılan firebase metodu
+  try {
+    let userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    //? kullanıcı profilini güncellemek için kullanılan firebase metodu
+    await updateProfile(auth.currentUser, {
+      displayName: displayName,
+    });
+    toastSuccessNotify('Registered successfully!');
+    navigate('/');
+    console.log(userCredential);
+  } catch (err) {
+    toastErrorNotify(err.message);
+  }
 };
-    //giriş için firebase methodu
 
-export const signIn = async(email, password, navigate) => {
-    try {
-        let userCredential = await signInWithEmailAndPassword(
-          auth,
-          email, 
-          password
-        );
-        navigate('/')
-          console.log(userCredential);
-      } catch (err) {
-          console.log(err);         
-      }  
-}
+//* https://console.firebase.google.com/
+//* => Authentication => sign-in-method => enable Email/password
+//! Email/password ile girişi enable yap
+export const signIn = async (email, password, navigate) => {
+  //? mevcut kullanıcının giriş yapması için kullanılan firebase metodu
+  try {
+    let userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    navigate('/');
+    toastSuccessNotify('Logged in successfully!');
+    // sessionStorage.setItem('user', JSON.stringify(userCredential.user));
+    console.log(userCredential);
+  } catch (err) {
+    toastErrorNotify(err.message);
+    console.log(err);
+  }
+};
 
 export const userObserver = (setCurrentUser) => {
-    //? kullanıcının signin olup olmadığını takip edip kullanıcıdeğiştiğinde yeni kullanıcıyı response dönen firebase methodu
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            setCurrentUser(user);
-        } else {
-            // user is signout
-            setCurrentUser(false);
-        }
+  //? Kullanıcının signin olup olmadığını takip eden ve kullanıcı değiştiğinde yeni kullanıcıyı response olarak dönen firebase metodu
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      setCurrentUser(user);
+    } else {
+      // User is signed out
+      setCurrentUser(false);
+    }
+  });
+};
+
+export const logOut = () => {
+  signOut(auth);
+};
+
+//* https://console.firebase.google.com/
+//* => Authentication => sign-in-method => enable Google
+//! Google ile girişi enable yap
+//* => Authentication => sign-in-method => Authorized domains => add domain
+//! Projeyi deploy ettikten sonra google sign-in çalışması için domain listesine deploy linkini ekle
+export const signUpProvider = (navigate) => {
+  //? Google ile giriş yapılması için kullanılan firebase metodu
+  const provider = new GoogleAuthProvider();
+  //? Açılır pencere ile giriş yapılması için kullanılan firebase metodu
+  signInWithPopup(auth, provider)
+    .then((result) => {
+      console.log(result);
+      navigate('/');
+      toastSuccessNotify('Logged out successfully!');
+    })
+    .catch((error) => {
+      // Handle Errors here.
+      console.log(error);
     });
 };
 
-
-export const logOut = () => {
-    signOut(auth);
+export const forgotPassword = (email) => {
+  //? Email yoluyla şifre sıfırlama için kullanılan firebase metodu
+  sendPasswordResetEmail(auth, email)
+    .then(() => {
+      // Password reset email sent!
+      toastWarnNotify('Please check your mail box!');
+      // alert("Please check your mail box!");
+    })
+    .catch((err) => {
+      toastErrorNotify(err.message);
+      // alert(err.message);
+      // ..
+    });
 };
-
-
-

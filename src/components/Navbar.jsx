@@ -6,10 +6,10 @@ import { AuthContext } from '../context/AuthContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const {currentUser} = useContext(AuthContext);
+  const { currentUser } = useContext(AuthContext);
   //* with custom hook
-  // const {currentUser} = useAuthContext(AuthContext);
-  // const currentUser = { displayName: 'çetin aras' };
+  // const { currentUser } = useAuthContext();
+  // const currentUser = { displayName: 'felix franko' };
   // const currentUser = false;
   return (
     <div>
@@ -24,7 +24,12 @@ const Navbar = () => {
                 <h5 className="mb-0 text-capitalize">
                   {currentUser.displayName}
                 </h5>
-                <button className="ms-2 btn btn-outline-light" onClick={() => logOut()}>Logout</button>
+                <button
+                  className="ms-2 btn btn-outline-light"
+                  onClick={() => logOut()}
+                >
+                  Logout
+                </button>
               </>
             ) : (
               <>
