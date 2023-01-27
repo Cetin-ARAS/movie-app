@@ -1,10 +1,15 @@
 import React from 'react';
+import { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  // const currentUser = { displayName: 'felix franko' };
-  const currentUser = false;
+  const {currentUser} = useContext(AuthContext);
+  //* with custom hook
+  // const {currentUser} = useAuthContext(AuthContext);
+  // const currentUser = { displayName: 'çetin aras' };
+  // const currentUser = false;
   return (
     <div>
       <nav className="navbar navbar-expand-lg ">

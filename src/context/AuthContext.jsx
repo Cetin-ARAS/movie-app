@@ -1,12 +1,36 @@
 import React from 'react'
+import { useEffect } from 'react'
+import { useContext } from 'react'
+import { useState } from 'react'
+import { createContext } from 'react'
+import { userObserver } from '../auth/firebase'
 
-const AuthContext = () => {
+export const AuthContext = createContext()
+
+//* with custom hook
+// export const useAuthContext = () => {
+//   return useContext(AuthContext)
+// }
+
+
+
+const AuthContextProvider = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState(false);
+
+  useEffect(() => {
+    // setCurrentUser(JSON.parse(sessionStorage.getItem
+    // ('user')));
+    userObserver(setCurrentUser);
+  }, []);
+
   return (
-    <div>AuthContext</div>
+    <AuthContext.Provider value={{ currentUser }}>
+      { children }
+    </AuthContext.Provider>
   )
 }
 
 
 
 
-export default AuthContext
+export default AuthContextProvider

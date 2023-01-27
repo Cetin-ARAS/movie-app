@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, getAuth, onAuthStateChanged } from 'firebase/auth';
 
 // TODO: Replace the following with your app's Firebase project configuration
 //* https://firebase.google.com/docs/auth/web/start
@@ -29,12 +29,42 @@ export const createUser = async(email, password, navigate) => {
         password
       );
       navigate('/')
+        sessionStorage.setItem("user".JSON.stringfy
+        (userCredential.user))
         console.log(userCredential);
     } catch (err) {
         console.log(err);
         
     }  
 };
+    //giriş için firebase methodu
+
+export const signIn = async(email, password, navigate) => {
+    try {
+        let userCredential = await signInWithEmailAndPassword(
+          auth,
+          email, 
+          password
+        );
+        navigate('/')
+          console.log(userCredential);
+      } catch (err) {
+          console.log(err);         
+      }  
+}
+
+export const userObserver = (setCurrentUser) => {
+    //? kullanıcının signin olup olmadığını takip edip kullanıcıdeğiştiğinde yeni kullanıcıyı response dönen firebase methodu
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            setCurrentUser(user);
+        } else {
+            // user is signout
+            setCurrentUser(false);
+        }
+    });
+};
+
 
 
 
