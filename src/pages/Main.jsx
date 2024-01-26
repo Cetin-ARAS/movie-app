@@ -10,7 +10,7 @@ const FEATURED_API = `https://api.themoviedb.org/3/discover/movie?api_key=${API_
 const SEARCH_API = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=`;
 
 const Main = () => {
-  const [movies, setMovies] = useState([]);
+  const [movies, setMovies] = useState([]); //* ilk map de boş array dönsün hata basmasın ya da optioanl chaining
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { currentUser } = useContext(AuthContext);
@@ -52,7 +52,7 @@ const Main = () => {
         <button type="submit">Search</button>
       </form>
       <div className="d-flex justify-content-center flex-wrap">
-        {loading ? (
+        {loading ? ( //* Direkt loading yapısını bootsrapten aldık
           <div className="spinner-border text-primary m-5" role="status">
             <span className="sr-only">Loading...</span>
           </div>
